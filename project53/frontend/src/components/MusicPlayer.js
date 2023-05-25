@@ -34,7 +34,7 @@ const MusicPlayer = (props) => {
       method: 'POST',
       headers: {'COntent-Type': 'application/json'}
     };
-    fetch('/spotify/skip', requestOptions);
+    fetch('/spotify/skip-song', requestOptions);
   }
 
   return (
@@ -55,7 +55,7 @@ const MusicPlayer = (props) => {
               {props.is_playing ? <Pause /> : <PlayArrow />}
             </IconButton>
             <IconButton onClick={() => skipSong()}>
-              <SkipNext />
+              <SkipNext /> {props.votes} / {props.votes_required}
             </IconButton>
           </div>
         </Grid>

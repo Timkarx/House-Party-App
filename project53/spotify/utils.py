@@ -105,4 +105,4 @@ def pause_song(session_id):
     return execute_sotify_api_call(session_id=session_id, endpoint='/player/pause', put_=True)
 
 def skip_song(session_id):
-    return execute_sotify_api_call(session_id=session_id, endpoint='player/next', post_=True)
+    return execute_sotify_api_call(session_id=session_id, endpoint='/player/next', post_=True)
