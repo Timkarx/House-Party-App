@@ -3,6 +3,7 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
+    display: flex;
 }
 
 #main {
@@ -11,6 +12,7 @@ body {
     height: 100%;
     Left: 0;
     top: 0;
+    display: flex;
 }
 
 #app {
@@ -21,7 +23,7 @@ body {
 
 .center {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    height: 100%;
+    width:100%;
+    display: flex;
 }

@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Grid, Button, Typography } from "@mui/material";
+import {
+  Grid,
+  Button,
+  Typography,
+  Box,
+  AppBar,
+  Toolbar,
+  IconButton,
+} from "@mui/material";
+import { Menu } from "@mui/icons-material";
 import CreateRoomPage from "./CreateRoomPage";
-import MusicPlayer from './MusicPlayer'
+import MusicPlayer from "./MusicPlayer";
+import MusicSearch from "./MusicSearch";
+import NavBar from "./NavBar";
 
 const Room = ({ leaveRoomCallback }) => {
   const [votesToSkip, setVotesToSkip] = useState(2);
@@ -10,7 +21,7 @@ const Room = ({ leaveRoomCallback }) => {
   const [isHost, setIsHost] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [song, setSong] = useState({})
+  const [song, setSong] = useState({});
 
   const { roomCode } = useParams();
   const navigate = useNavigate();
@@ -18,7 +29,7 @@ const Room = ({ leaveRoomCallback }) => {
   useEffect(() => {
     getRoomDetails();
     getCurrentSong();
-  },);
+  });
 
   const getRoomDetails = () => {
     fetch("/api/get-room" + "?code=" + roomCode)
@@ -55,14 +66,24 @@ const Room = ({ leaveRoomCallback }) => {
   };
 
   const getCurrentSong = () => {
-    fetch('/spotify/current-song').then((response) => {
-      if (!response.ok) {
-        return {}
-      } else {
-        return response.json();
-      }
-    }).then((data) => setSong(data))
-  }
+    fetch("/spotify/current-song")
+      .then((response) => {
+        if (!response.ok) {
+          return {};
+        } else {
+          return response.json();
+        }
+      })
+      .then((data) => setSong(data));
+  };
+
+  const renderLeaveButton = () => {
+    return (
+      <Button color="secondary" variant="contained" onClick={handleLeaveButton}>
+        Leave Room
+      </Button>
+    );
+  };
 
   const handleLeaveButton = () => {
     const requestOptions = {
@@ -102,15 +123,13 @@ const Room = ({ leaveRoomCallback }) => {
 
   const renderSettingsButton = () => {
     return (
-      <Grid item xs={12} align="center">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setShowSettings(true)}
-        >
-          Settings
-        </Button>
-      </Grid>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setShowSettings(true)}
+      >
+        Settings
+      </Button>
     );
   };
 
@@ -118,25 +137,42 @@ const Room = ({ leaveRoomCallback }) => {
     return renderSettings();
   } else {
     return (
-      <Grid container spacing={1}>
-        <Grid item xs={12} align="center">
-          <Typography variant="h4" component="h4">
-            Code: {roomCode}
-          </Typography>
+      <Box spacing={1} style={{ width: "100%", height: "100%" }}>
+        <NavBar
+          settingsCallback={renderSettings}
+          settingsButtonCallback={renderSettingsButton}
+          leaveButton={renderLeaveButton}
+          host={isHost}
+          room_code={roomCode}
+        />
+        <Grid container style={{ height: "100%" }}>
+          <Grid item xs={6}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              justifyContent="flex-start"
+              alignItems="center"
+              style={{ height: "100%" }}
+              p={3}
+            >
+              {console.log(song)}
+              <MusicPlayer {...song} />
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              justifyContent="flex-start"
+              alignItems="center"
+              style={{ height: "100%" }}
+              p={3}
+            >
+              <MusicSearch/>
+            </Box>
+          </Grid>
         </Grid>
-        <MusicPlayer {...song} />
-        {console.log(song)}
-        {isHost ? renderSettingsButton() : null}
-        <Grid item xs={12} align="center">
-          <Button
-            color="secondary"
-            variant="contained"
-            onClick={handleLeaveButton}
-          >
-            Leave Room
-          </Button>
-        </Grid>
-      </Grid>
+      </Box>
     );
   }
 };

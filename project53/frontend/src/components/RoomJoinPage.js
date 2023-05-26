@@ -3,31 +3,30 @@ import { TextField, Button, Grid, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
 const RoomJoinPage = () => {
+  const [roomCode, setRoomCode] = useState();
+  const [error, setError] = useState();
+  const navigate = useNavigate();
 
-    const [roomCode, setRoomCode] = useState();
-    const [error, setError] = useState();
-    const navigate = useNavigate();
+  const handleTextFieldChange = (e) => {
+    setRoomCode(e.target.value);
+  };
 
-    const handleTextFieldChange = (e) => {
-        setRoomCode(e.target.value);
+  const handleRoomButtonPress = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: roomCode,
+      }),
     };
-
-    const handleRoomButtonPress = () => {
-        const requestOptions = {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                code: roomCode
-            })
-        };
-        fetch('/api/join-room', requestOptions).then((response) => {
-            if (response.ok) {
-                navigate(`/room/${roomCode}`)
-            } else {
-                setError(true)
-            }
-        })
-    }
+    fetch("/api/join-room", requestOptions).then((response) => {
+      if (response.ok) {
+        navigate(`/room/${roomCode}`);
+      } else {
+        setError(true);
+      }
+    });
+  };
 
   return (
     <Grid container spacing={1} align="center">
@@ -46,13 +45,21 @@ const RoomJoinPage = () => {
         />
       </Grid>
       <Grid item xs={12}>
-        <Button variant='contained' color='secondary' onClick={handleRoomButtonPress}>Enter Room</Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleRoomButtonPress}
+        >
+          Enter Room
+        </Button>
       </Grid>
       <Grid item xs={12}>
-        <Button variant='contained' color='primary' to='/' component={Link}>Back</Button>
+        <Button variant="contained" color="primary" to="/" component={Link}>
+          Back
+        </Button>
       </Grid>
     </Grid>
   );
 };
 
-export default RoomJoinPage
+export default RoomJoinPage;
