@@ -100,19 +100,3 @@ const MusicSearch = () => {
 };
 
 export default MusicSearch;
-
-/* <Box display="flex" flexDirection="row" justifyContent="center" m={3}>
-<TextField
-  label=""
-  placeholder="Search a song"
-  variant="outlined"
-  onChange={handleSearch}
-/>
-<Button
-  variant="contained"
-  color="secondary"
-  onClick={handlesearchSong}
->
-  Search
-</Button>
-</Box> */
