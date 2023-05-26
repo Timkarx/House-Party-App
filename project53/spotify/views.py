@@ -100,7 +100,7 @@ class CurrentSong(APIView):
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         host = room.host
         endpoint = "/player/currently-playing"
-        response = execute_sotify_api_call(session_id=host, endpoint=endpoint)
+        response = execute_spotify_api_call(session_id=host, endpoint=endpoint)
 
         if "error" in response or "item" not in response:
             return Response({}, status=status.HTTP_204_NO_CONTENT)
@@ -189,3 +189,50 @@ class SkipSong(APIView):
             vote.save()
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+    
+class SearchSong(APIView):
+    def post(self, request, format=None):
+        room_code = self.request.session.get("room_code")
+        room = Room.objects.filter(code=room_code)
+        if room.exists():
+            room = room[0]
+        else:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        host = room.host
+
+        search_query = self.request.data.get('query')
+        type = 'track'
+        spotify_response = search_song(session_id=host, search_query=search_query, type=type)
+        if spotify_response is not None:
+            print("Response received")
+        else:
+            print('Repsonse is none')
+
+        songs=[]
+        query_list = []
+
+        for song in range(5):
+            songs.append(spotify_response.get('tracks').get('items')[song])
+
+        for song in songs:
+            
+            query={
+                'name': song.get('name'),
+                'album': song.get('album').get('name'),
+                'img': song.get('album').get('images')[2].get('url'),
+                'duration': song.get('duration_ms'),
+                'id': song.get('id')
+            }
+
+            query_list.append(query)
+        
+        search_results = {
+            'query_1': query_list[0],
+            'query_2': query_list[1],
+            'query_3': query_list[2],
+            'query_4': query_list[3],
+            'query_5': query_list[4]
+
+        }
+
+        return Response(search_results, status=status.HTTP_200_OK)

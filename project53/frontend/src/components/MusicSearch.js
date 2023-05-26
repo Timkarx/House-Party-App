@@ -14,27 +14,31 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Divider,
+  Paper,
+  InputBase,
 } from "@mui/material";
-import { PlayArrow, SkipNext, Pause, Inbox, Drafts } from "@mui/icons-material";
+import { Search } from "@mui/icons-material";
 
 const MusicSearch = () => {
   const [searchQuery, setSearchQuery] = useState(null);
-  const [result_1_name, setResultName] = useState(null);
-  const [result_1_img, setResultImg] = useState(null);
+  const [searchResults, setSearchResult] = useState({});
+  const [resultReceived, setResultRecieved] = useState(false);
 
-  const handlesearchSong = () => {
+  const handleSearchSong = () => {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        search_query: searchQuery,
+        query: searchQuery,
       }),
     };
+    console.log(searchQuery);
     fetch("/spotify/search-song", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        setResultName = data.track_name;
-        setResultImg = data.album_cover;
+        setSearchResult(data);
+        setResultRecieved(true);
       });
   };
 
@@ -42,45 +46,73 @@ const MusicSearch = () => {
     setSearchQuery(e.target.value);
   };
 
+  const renderSearchResult = () => {
+    const searchList = Object.values(searchResults).map((query) => (
+      <>
+        <ListItem disablePadding>
+          <ListItemButton>
+            <ListItemIcon sx={{ pr: "10px" }}>
+              <img src={query.img} height="100%" width="100%" />
+            </ListItemIcon>
+            <ListItemText primary={query.name} secondary={query.album} />
+            <ListItemText primary={query.duration} />
+          </ListItemButton>
+        </ListItem>
+        <Divider />
+      </>
+    ));
+
+    return <List>{searchList}</List>;
+  };
+
   return (
     <Grid item style={{ width: "100%" }}>
       <Card>
         <Box display="flex" flexDirection="row" justifyContent="center" m={3}>
-          <TextField
-            label=""
-            placeholder="Search a song"
-            variant="outlined"
-            onChange={handleSearch}
-          />
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handlesearchSong}
+          <Paper
+            component="form"
+            sx={{
+              p: "2px 4px",
+              display: "flex",
+              alignItems: "center",
+              width: 400,
+            }}
           >
-            Search
-          </Button>
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Search Spotify"
+              onChange={handleSearch}
+            />
+            <IconButton
+              type="button"
+              sx={{ p: "10px" }}
+              aria-label="search"
+              onClick={handleSearchSong}
+            >
+              <Search />
+            </IconButton>
+          </Paper>
         </Box>
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <Inbox />
-              </ListItemIcon>
-              <ListItemText primary="Inbox" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <Drafts />
-              </ListItemIcon>
-              <ListItemText primary="Drafts" />
-            </ListItemButton>
-          </ListItem>
-        </List>
+        {resultReceived ? renderSearchResult() : null}
       </Card>
     </Grid>
   );
 };
 
 export default MusicSearch;
+
+/* <Box display="flex" flexDirection="row" justifyContent="center" m={3}>
+<TextField
+  label=""
+  placeholder="Search a song"
+  variant="outlined"
+  onChange={handleSearch}
+/>
+<Button
+  variant="contained"
+  color="secondary"
+  onClick={handlesearchSong}
+>
+  Search
+</Button>
+</Box> */

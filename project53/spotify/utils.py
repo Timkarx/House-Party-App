@@ -5,6 +5,7 @@ from .credentials import CLIENT_ID, CLIENT_SECRET
 from requests import post, put, get
 
 BASE_URL = 'https://api.spotify.com/v1/me'
+SEARCH_URL = 'https://api.spotify.com/v1/search?q='
 
 def get_user_tokens(session_id):
     user_tokens = SpotifyToken.objects.filter(user=session_id)
@@ -83,7 +84,7 @@ def is_spotify_authenticated(session_id):
     return False
 
 
-def execute_sotify_api_call(session_id, endpoint, post_=False, put_=False):
+def execute_spotify_api_call(session_id, endpoint, post_=False, put_=False):
     tokens = get_user_tokens(session_id=session_id)
     header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tokens.access_token}
 
@@ -99,10 +100,20 @@ def execute_sotify_api_call(session_id, endpoint, post_=False, put_=False):
         return {'Error': 'Issue with request'}
     
 def play_song(session_id):
-    return execute_sotify_api_call(session_id=session_id, endpoint='/player/play', put_=True)
+    return execute_spotify_api_call(session_id=session_id, endpoint='/player/play', put_=True)
 
 def pause_song(session_id):
-    return execute_sotify_api_call(session_id=session_id, endpoint='/player/pause', put_=True)
+    return execute_spotify_api_call(session_id=session_id, endpoint='/player/pause', put_=True)
 
 def skip_song(session_id):
-    return execute_sotify_api_call(session_id=session_id, endpoint='/player/next', post_=True)
+    return execute_spotify_api_call(session_id=session_id, endpoint='/player/next', post_=True)
+
+def search_song(session_id, search_query, type, limit=10):
+    tokens = get_user_tokens(session_id=session_id)
+    header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tokens.access_token}
+    
+    response = get(SEARCH_URL + search_query + '&type=' + type, {}, headers=header)
+
+    return response.json()
+
+    
