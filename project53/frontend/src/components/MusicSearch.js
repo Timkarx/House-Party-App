@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 
-const MusicSearch = () => {
+const MusicSearch = (props) => {
   const [searchQuery, setSearchQuery] = useState(null);
   const [searchResults, setSearchResult] = useState({});
   const [resultReceived, setResultRecieved] = useState(false);
@@ -42,32 +42,78 @@ const MusicSearch = () => {
       });
   };
 
+  const addQueue = (query) => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query_id: query.id,
+        query_duration: query.duration,
+        query_name: query.name,
+        query_artist: query.artists,
+        query_album: query.album,
+        query_img: query.img
+      }),
+    };
+    console.log(query.id);
+    fetch("/spotify/add-queue", requestOptions);
+  };
+
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
 
+  function millisToMinutesAndSeconds(millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return seconds == 60
+      ? minutes + 1 + ":00"
+      : minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  }
+
   const renderSearchResult = () => {
     const searchList = Object.values(searchResults).map((query) => (
-      <>
-        <ListItem disablePadding>
-          <ListItemButton>
+      <React.Fragment key={query.id}>
+        <ListItem disablePadding secondaryAction={millisToMinutesAndSeconds(query.duration)}>
+          <ListItemButton onClick={() => addQueue(query)}>
             <ListItemIcon sx={{ pr: "10px" }}>
               <img src={query.img} height="100%" width="100%" />
             </ListItemIcon>
-            <ListItemText primary={query.name} secondary={query.album} />
-            <ListItemText primary={query.duration} />
+            <ListItemText primary={query.name} secondary={query.artists} />
+            <ListItemText primary={query.album} />
           </ListItemButton>
         </ListItem>
         <Divider />
-      </>
+      </React.Fragment>
     ));
 
     return <List>{searchList}</List>;
   };
 
+  const renderSelectedSongs = () => {
+    const selectedSongList = props.suggestedSongs.map((song) => (
+      <React.Fragment key={song.id}>
+        <ListItem disablePadding secondaryAction={millisToMinutesAndSeconds(song.duration)}>
+          <ListItemIcon sx={{ pr: "10px" }}>
+            <img src={song.img} height="100%" width="100%" />
+          </ListItemIcon>
+          <ListItemText primary={song.name} secondary={song.artists} />
+          <ListItemText primary={song.album} />
+          <ListItemText>{song.votes} / {props.votesToSuggestSong}</ListItemText>
+        </ListItem>
+        <Divider />
+      </React.Fragment>
+    ));
+    
+    if (props.suggestedSongs) {
+      return <List>{selectedSongList}</List>
+    } else return null
+  };
+
   return (
     <Grid item style={{ width: "100%" }}>
       <Card>
+        {renderSelectedSongs}
         <Box display="flex" flexDirection="row" justifyContent="center" m={3}>
           <Paper
             component="form"

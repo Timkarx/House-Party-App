@@ -16,20 +16,15 @@ const MusicPlayer = (props) => {
 
   const songProgress = (props.time / props.duration) * 100;
 
-  const pauseSong = () => {
+  const songPlayback = (playback) => {
     const requestOptions = {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        playback: playback
+      })
     };
-    fetch("/spotify/pause-song", requestOptions);
-  };
-
-  const playSong = () => {
-    const requestOptions = {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-    };
-    fetch("/spotify/play-song", requestOptions);
+    fetch("/spotify/song-playback", requestOptions);
   };
 
   const skipSong = () => {
@@ -40,7 +35,6 @@ const MusicPlayer = (props) => {
     fetch("/spotify/skip-song", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
       });
   };
 
@@ -67,7 +61,7 @@ const MusicPlayer = (props) => {
               <div>
                 <IconButton
                   onClick={() => {
-                    props.is_playing ? pauseSong() : playSong();
+                    props.is_playing ? songPlayback(true) : songPlayback(false);
                   }}
                 >
                   {props.is_playing ? <Pause /> : <PlayArrow />}

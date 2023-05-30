@@ -31,7 +31,6 @@ export default function ButtonAppBar(props) {
           </Typography>
           {host ? settingsButton() : null}
           {leaveButton()}
-          {console.log(host)}
         </Toolbar>
       </AppBar>
     </Box>

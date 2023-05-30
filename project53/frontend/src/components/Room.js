@@ -13,23 +13,61 @@ import { Menu } from "@mui/icons-material";
 import CreateRoomPage from "./CreateRoomPage";
 import MusicPlayer from "./MusicPlayer";
 import MusicSearch from "./MusicSearch";
+import MusicQueue from "./MusicQueue";
 import NavBar from "./NavBar";
 
 const Room = ({ leaveRoomCallback }) => {
   const [votesToSkip, setVotesToSkip] = useState(2);
+  const [votesToSuggestSong, setVotesToSuggestSong] = useState(0)
   const [guestCanPause, setGuestCanPause] = useState(true);
   const [isHost, setIsHost] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [song, setSong] = useState({});
+  const [retryAfter, setRetryAfter] = useState(0);
+  const [queue, setQueue] = useState({});
+  const [suggestedSongs, setSuggestedSongs] = useState([])
 
   const { roomCode } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    getRoomDetails();
     getCurrentSong();
-  });
+    getQueue();
+
+    const interval1 = setInterval(() => {
+      if (retryAfter <= 0) {
+        getCurrentSong();
+        getQueue()
+      } else {
+        setRetryAfter((prevRetryAfter) => prevRetryAfter - 1000);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval1);
+  }, []);
+
+  useEffect(() => {
+    if (retryAfter > 0) {
+      const timeout = setTimeout(() => {
+        setRetryAfter(0);
+        getCurrentSong();
+        getQueue();
+      }, retryAfter);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [retryAfter]);
+
+  useEffect(() => {
+    getRoomDetails();
+
+    const interval2 = setInterval(() => {
+      getRoomDetails();
+    }, 2000);
+
+    return () => clearInterval(interval2);
+  }, []);
 
   const getRoomDetails = () => {
     fetch("/api/get-room" + "?code=" + roomCode)
@@ -42,12 +80,14 @@ const Room = ({ leaveRoomCallback }) => {
       })
       .then((data) => {
         setVotesToSkip(data.votes_to_skip);
+        setVotesToSuggestSong(data.votes_to_suggest_song)
         setGuestCanPause(data.guest_can_pause);
         setIsHost(data.is_host);
+        setSuggestedSongs(data.suggested_songs)
+        if (data.is_host) {
+          authenticateSpotify();
+        }
       });
-    if (isHost) {
-      authenticateSpotify();
-    }
   };
 
   const authenticateSpotify = () => {
@@ -68,13 +108,31 @@ const Room = ({ leaveRoomCallback }) => {
   const getCurrentSong = () => {
     fetch("/spotify/current-song")
       .then((response) => {
-        if (!response.ok) {
-          return {};
+        if (response.status == 401) {
+          authenticateSpotify();
+          console.log("401");
+        } else if (response.status == 429) {
+          console.log("429");
+          setRetryAfter(response.headers["retry-after"]);
+        } else if (response.status == 406) {
+          console.log("Unknown Error occured");
+        } else if (response.status == 500) {
+          setRetryAfter(2000);
         } else {
+          console.log("200");
           return response.json();
         }
       })
-      .then((data) => setSong(data));
+      .then((data) => {
+        setSong(data);
+        console.log(data)
+      });
+  };
+
+  const getQueue = () => {
+    fetch("/spotify/get-queue")
+      .then((response) => response.json())
+      .then((data) => setQueue(data));
   };
 
   const renderLeaveButton = () => {
@@ -103,6 +161,7 @@ const Room = ({ leaveRoomCallback }) => {
           <CreateRoomPage
             update={true}
             votesToSkip={votesToSkip}
+            votesToSuggestSong={votesToSuggestSong}
             guestCanPause={guestCanPause}
             roomCode={roomCode}
             updateCallback={getRoomDetails}
@@ -137,7 +196,7 @@ const Room = ({ leaveRoomCallback }) => {
     return renderSettings();
   } else {
     return (
-      <Box spacing={1} style={{ width: "100%", height: "100%" }}>
+      <Box spacing={1}>
         <NavBar
           settingsCallback={renderSettings}
           settingsButtonCallback={renderSettingsButton}
@@ -145,18 +204,26 @@ const Room = ({ leaveRoomCallback }) => {
           host={isHost}
           room_code={roomCode}
         />
-        <Grid container style={{ height: "100%" }}>
+        <Grid container sx={{ height: "50%" }}>
           <Grid item xs={6}>
             <Box
               display="flex"
               flexDirection="column"
               justifyContent="flex-start"
               alignItems="center"
-              style={{ height: "100%" }}
-              p={3}
+              p={1}
             >
-              {console.log(song)}
               <MusicPlayer {...song} />
+            </Box>
+            <Box
+              display="flex"
+              flexDirection="column"
+              justifyContent="flex-start"
+              alignItems="center"
+              pr={1}
+              pl={1}
+            >
+              <MusicQueue queue={queue}/>
             </Box>
           </Grid>
           <Grid item xs={6}>
@@ -166,9 +233,9 @@ const Room = ({ leaveRoomCallback }) => {
               justifyContent="flex-start"
               alignItems="center"
               style={{ height: "100%" }}
-              p={3}
+              p={1}
             >
-              <MusicSearch/>
+              <MusicSearch {...song} votes_to_suggest={votesToSuggestSong} suggestedSongs={suggestedSongs} />
             </Box>
           </Grid>
         </Grid>

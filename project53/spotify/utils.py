@@ -1,6 +1,7 @@
 from .models import SpotifyToken
 from django.utils import timezone
 from datetime import timedelta
+import time
 from .credentials import CLIENT_ID, CLIENT_SECRET
 from requests import post, put, get
 
@@ -75,7 +76,6 @@ def is_spotify_authenticated(session_id):
     tokens = get_user_tokens(session_id=session_id)
     if tokens:
         expiry = tokens.expires_in
-        print(f"Refresh Token is: {tokens.refresh_token}")
         if expiry <= timezone.now():
             refresh_spotify_token(session_id=session_id)
         
@@ -94,10 +94,9 @@ def execute_spotify_api_call(session_id, endpoint, post_=False, put_=False):
         put(BASE_URL + endpoint, headers=header)
 
     response = get(BASE_URL + endpoint, {}, headers=header)
-    try:
-        return response.json()
-    except:
-        return {'Error': 'Issue with request'}
+    print(response)
+    
+    return response
     
 def play_song(session_id):
     return execute_spotify_api_call(session_id=session_id, endpoint='/player/play', put_=True)
@@ -116,4 +115,24 @@ def search_song(session_id, search_query, type, limit=10):
 
     return response.json()
 
+def get_queue(session_id, track_id, get_=False, post_=False):
+    endpoint = '/player/queue'
+    tokens = get_user_tokens(session_id=session_id)
+    header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tokens.access_token}
+
+    if get_:
+        get_response = get(BASE_URL + endpoint, headers=header)
+    
+        if get_response.status_code == 429:
+            return {'Error': 'Too many requests'}
+        else:
+            try:
+                return get_response.json()
+            except:
+                print(get_response.headers)
+                print(get_response.status_code)
+                return {'Error': 'Issue with request'}
+    
+    if post_:
+        post(BASE_URL + endpoint + '?uri=spotify:track:' + track_id, headers=header)
     
