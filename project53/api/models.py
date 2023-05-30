@@ -21,3 +21,8 @@ class Room(models.Model):
     votes_to_skip = models.IntegerField(null=False, default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     current_song = models.CharField(max_length=50, null=True)
+    votes_to_suggest_song = models.IntegerField(default=1, null=True)
+
+    @property
+    def suggested_songs(self):
+        return self.suggestedsong_set.all()

@@ -10,18 +10,21 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { Alert, Collapse } from "@mui/material";
- 
+
 const CreateRoomPage = (props) => {
   const defaultGuestCanPause =
     props.guestCanPause !== undefined ? props.guestCanPause : true;
   const defaultVotesToSkip =
     props.votesToSkip !== undefined ? props.votesToSkip : 2;
+  const defaultVotesSuggest =
+    props.votesToSuggestSong !== undefined ? props.votesToSuggestSong : 1;
   const roomCode = props.roomCode;
   const update = props.update;
   const updateCallback = props.updateCallback;
 
   const [guestCanPause, setGuestCanPause] = useState(defaultGuestCanPause);
   const [votesToSkip, setVotesToSkip] = useState(defaultVotesToSkip);
+  const [votesToSuggestSong, setVotesToSuggestSong] = useState(defaultVotesSuggest)
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -35,13 +38,18 @@ const CreateRoomPage = (props) => {
     setGuestCanPause(e.target.value === "true");
   };
 
+  const handleVotesSuggestChange = (e) => {
+    setVotesToSuggestSong(e.target.value);
+  }
+
   const handleRoomButtonPressed = () => {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         votes_to_skip: votesToSkip,
-        guest_can_pause: guestCanPause,
+        votes_to_suggest_song: votesToSuggestSong,
+        guest_can_pause: guestCanPause
       }),
     };
     fetch("/api/create-room", requestOptions)
@@ -56,6 +64,7 @@ const CreateRoomPage = (props) => {
       body: JSON.stringify({
         votes_to_skip: votesToSkip,
         guest_can_pause: guestCanPause,
+        votes_to_suggest_song: votesToSuggestSong,
         code: roomCode,
       }),
     };
@@ -167,6 +176,21 @@ const CreateRoomPage = (props) => {
           />
           <FormHelperText>
             <div align="center">Votes Required to skip song</div>
+          </FormHelperText>
+        </FormControl>
+        <FormControl>
+          <TextField
+            required={true}
+            type="number"
+            onChange={handleVotesSuggestChange}
+            defaultValue={votesToSuggestSong}
+            inputProps={{
+              min: 1,
+              style: { textAlign: "center" },
+            }}
+          />
+          <FormHelperText>
+            <div align="center">Votes Required to suggest a song</div>
           </FormHelperText>
         </FormControl>
       </Grid>
