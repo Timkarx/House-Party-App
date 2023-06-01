@@ -24,6 +24,17 @@ const MusicSearch = (props) => {
   const [searchQuery, setSearchQuery] = useState(null);
   const [searchResults, setSearchResult] = useState({});
   const [resultReceived, setResultRecieved] = useState(false);
+  const [renderSuggested, setRenderSuggested] = useState(false)
+  const [suggestedSongs, setSuggestedSongs] = useState([])
+
+  useEffect(() => {
+    if (props.suggestedSongs.length >= 1) {
+      setRenderSuggested(true)
+    } else {
+      setRenderSuggested(false)
+    }
+    console.log(props.suggestedSongs)
+  }, [props.suggestedSongs])
 
   const handleSearchSong = () => {
     const requestOptions = {
@@ -92,28 +103,27 @@ const MusicSearch = (props) => {
 
   const renderSelectedSongs = () => {
     const selectedSongList = props.suggestedSongs.map((song) => (
-      <React.Fragment key={song.id}>
-        <ListItem disablePadding secondaryAction={millisToMinutesAndSeconds(song.duration)}>
+      <React.Fragment key={song[5]}>
+        <ListItem disablePadding secondaryAction={millisToMinutesAndSeconds(song[3])}>
           <ListItemIcon sx={{ pr: "10px" }}>
-            <img src={song.img} height="100%" width="100%" />
+            <img src={song[4]} height="100%" width="100%" />
           </ListItemIcon>
-          <ListItemText primary={song.name} secondary={song.artists} />
-          <ListItemText primary={song.album} />
-          <ListItemText>{song.votes} / {props.votesToSuggestSong}</ListItemText>
+          <ListItemText primary={song[0]} secondary={song[2]} />
+          <ListItemText primary={song[1]} />
+          <ListItemText>{song[6]} / {props.votesToSuggestSong}</ListItemText>
         </ListItem>
         <Divider />
       </React.Fragment>
     ));
-    
-    if (props.suggestedSongs) {
-      return <List>{selectedSongList}</List>
-    } else return null
+    return <List>{selectedSongList}</List>
   };
 
   return (
     <Grid item style={{ width: "100%" }}>
       <Card>
-        {renderSelectedSongs}
+      {renderSuggested ? renderSelectedSongs() : null}
+      </Card>
+      <Card sx={{ boxShadow: 12, borderRadius: '16px'}}>
         <Box display="flex" flexDirection="row" justifyContent="center" m={3}>
           <Paper
             component="form"

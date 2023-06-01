@@ -52,12 +52,12 @@ const MusicQueue = (props) => {
 
   return (
     <Grid item style={{ width: "100%" }}>
-      <Card>
+      <Card sx={{ boxShadow: 12, borderRadius: '16px', bgcolor: "#c7cdc8"}}>
         <Typography
-          component="h4"
-          variant="h4"
+          component="h5"
+          variant="h5"
           align="center"
-          style={{ color: "primary" }}
+          justifyContent='center'
         >
           Queue
         </Typography>

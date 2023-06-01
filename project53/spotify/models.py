@@ -16,7 +16,7 @@ class SkipVote(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
 
 class SuggestedSong(models.Model):
-    user = models.CharField(max_length=50, unique=True)
+    user = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=50)
     album = models.CharField(max_length=50)

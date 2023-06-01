@@ -9,7 +9,7 @@ from api.models import Room
 from .models import SkipVote, SuggestedSong
 from .tasks import clear_suggested_song
 from celery.result import AsyncResult
-from celery_config import app
+from project53.celery_config import app
 from django.db.models import F
 
 

@@ -7,8 +7,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project53.settings')
 django.setup()
 
 app = Celery('project53',
-            broker='redis://localhost:6379/0',
-            backend='redis://localhost:6379/0',
+            broker='redis://redis:6379/0',
+            backend='redis://redis:6379/0',
              include=['spotify.tasks'])
 
 if __name__ == '__main__':
