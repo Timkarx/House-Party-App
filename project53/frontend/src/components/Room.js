@@ -84,6 +84,7 @@ const Room = ({ leaveRoomCallback }) => {
         setGuestCanPause(data.guest_can_pause);
         setIsHost(data.is_host);
         setSuggestedSongs(data.suggested_songs)
+        console.log(data.suggestedSongs)
         if (data.is_host) {
           authenticateSpotify();
         }
@@ -204,9 +205,9 @@ const Room = ({ leaveRoomCallback }) => {
           host={isHost}
           room_code={roomCode}
         />
-        <Grid container sx={{ height: "50%" }}>
+        <Grid container sx={{bgcolor: '#F4EDEB'}}>
           <Grid item xs={6}>
-            <Box
+            <Box 
               display="flex"
               flexDirection="column"
               justifyContent="flex-start"
