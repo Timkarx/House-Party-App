@@ -107,6 +107,9 @@ def pause_song(session_id):
 def skip_song(session_id):
     return execute_spotify_api_call(session_id=session_id, endpoint='/player/next', post_=True)
 
+def skip_prev_song(session_id):
+    return execute_spotify_api_call(session_id=session_id, endpoint='/player/previous', post_=True)
+
 def search_song(session_id, search_query, type, limit=10):
     tokens = get_user_tokens(session_id=session_id)
     header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tokens.access_token}
