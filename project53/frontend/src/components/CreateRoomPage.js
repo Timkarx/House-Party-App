@@ -24,7 +24,8 @@ const CreateRoomPage = (props) => {
 
   const [guestCanPause, setGuestCanPause] = useState(defaultGuestCanPause);
   const [votesToSkip, setVotesToSkip] = useState(defaultVotesToSkip);
-  const [votesToSuggestSong, setVotesToSuggestSong] = useState(defaultVotesSuggest)
+  const [votesToSuggestSong, setVotesToSuggestSong] =
+    useState(defaultVotesSuggest);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -40,7 +41,7 @@ const CreateRoomPage = (props) => {
 
   const handleVotesSuggestChange = (e) => {
     setVotesToSuggestSong(e.target.value);
-  }
+  };
 
   const handleRoomButtonPressed = () => {
     const requestOptions = {
@@ -49,7 +50,7 @@ const CreateRoomPage = (props) => {
       body: JSON.stringify({
         votes_to_skip: votesToSkip,
         votes_to_suggest_song: votesToSuggestSong,
-        guest_can_pause: guestCanPause
+        guest_can_pause: guestCanPause,
       }),
     };
     fetch("/api/create-room", requestOptions)
@@ -111,6 +112,11 @@ const CreateRoomPage = (props) => {
             Update
           </Button>
         </Grid>
+        <Grid item xs={12} align="center">
+          <Button color="secondary" variant="contained" to="/" component={Link}>
+            Back
+          </Button>
+        </Grid>
       </Grid>
     );
   };
@@ -118,7 +124,7 @@ const CreateRoomPage = (props) => {
   const title = update ? "Update room settings" : "Create a Room";
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} sx={{ height: "100vh" }}>
       <Grid item xs={12} align="center">
         <Collapse in={errorMsg != "" || successMsg != ""}>
           {successMsg != "" ? (
@@ -140,7 +146,9 @@ const CreateRoomPage = (props) => {
       <Grid item xs={12} align="center">
         <FormControl component="fieldset">
           <FormHelperText>
-            <div align="center">Guest Control of Playback State</div>
+            <Typography align="center">
+              Guest Control of Playback State
+            </Typography>
           </FormHelperText>
           <RadioGroup
             row
@@ -175,7 +183,7 @@ const CreateRoomPage = (props) => {
             }}
           />
           <FormHelperText>
-            <div align="center">Votes Required to skip song</div>
+            <Typography align="center">Votes Required to skip song</Typography>
           </FormHelperText>
         </FormControl>
         <FormControl>
@@ -190,11 +198,15 @@ const CreateRoomPage = (props) => {
             }}
           />
           <FormHelperText>
-            <div align="center">Votes Required to suggest a song</div>
+            <Typography align="center">
+              Votes Required to suggest a song
+            </Typography>
           </FormHelperText>
         </FormControl>
+        <Grid item xs={12} sx={{pt: 3}}>
+          {update ? renderUpdateButton() : renderCreateButton()}
+        </Grid>
       </Grid>
-      {update ? renderUpdateButton() : renderCreateButton()}
     </Grid>
   );
 };

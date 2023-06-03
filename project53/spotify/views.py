@@ -180,11 +180,16 @@ class SkipSong(APIView):
         room = Room.objects.filter(code=room_code)[0]
         votes = SkipVote.objects.filter(room=room, song_id=room.current_song)
         votes_to_skip = room.votes_to_skip
+        type = self.request.data.get('type')
 
         if (
             self.request.session.session_key == room.host
-            or len(votes) + 1 >= votes_to_skip
         ):
+            if type == False:
+                skip_song(room.host)
+            else:
+                skip_prev_song(room.host)
+        elif (len(votes) >= votes_to_skip):
             votes.delete()
             skip_song(room.host)
         else:
@@ -238,8 +243,8 @@ class SearchSong(APIView):
                 "album": song.get("album").get("name"),
                 "img": song.get("album").get("images")[2].get("url"),
                 "duration": song.get("duration_ms"),
-                "id": song.get("id"),
-                "artists": artists,
+                "spotify_id": song.get("id"),
+                "artist": artists,
             }
 
             query_list.append(query)
@@ -289,7 +294,7 @@ class GetQueue(APIView):
                     name = artist.get("name")
                     artists += name
 
-                queued_song["artists"] = artists
+                queued_song["artist"] = artists
                 queued_songs.append(queued_song)
 
             return Response(queued_songs, status=status.HTTP_200_OK)

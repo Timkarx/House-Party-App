@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Room
+from spotify.models import SuggestedSong
 
 
 class RoomSerializer(serializers.ModelSerializer):
@@ -19,18 +20,14 @@ class RoomSerializer(serializers.ModelSerializer):
         )
 
     def get_suggested_songs(self, obj):
-        return [
-            (
-                song.name,
-                song.album,
-                song.artist,
-                song.duration,
-                song.img,
-                song.spotify_id,
-                song.votes,
-            )
-            for song in obj.suggested_songs.all()
-        ]
+        suggested_songs = SuggestedSongSerializer(obj.suggested_songs.all(), many=True)
+        return suggested_songs.data
+
+
+class SuggestedSongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SuggestedSong
+        fields = ("name", "album", "artist", "duration", "img", "spotify_id", "votes")
 
 
 class CreateRoomSerializer(serializers.ModelSerializer):

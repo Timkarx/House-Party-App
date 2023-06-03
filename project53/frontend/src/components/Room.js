@@ -9,7 +9,7 @@ import {
   Toolbar,
   IconButton,
 } from "@mui/material";
-import { Menu } from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion"
 import CreateRoomPage from "./CreateRoomPage";
 import MusicPlayer from "./MusicPlayer";
 import MusicSearch from "./MusicSearch";
@@ -84,7 +84,6 @@ const Room = ({ leaveRoomCallback }) => {
         setGuestCanPause(data.guest_can_pause);
         setIsHost(data.is_host);
         setSuggestedSongs(data.suggested_songs)
-        console.log(data.suggestedSongs)
         if (data.is_host) {
           authenticateSpotify();
         }
@@ -168,15 +167,6 @@ const Room = ({ leaveRoomCallback }) => {
             updateCallback={getRoomDetails}
           />
         </Grid>
-        <Grid item xs={12} align="center">
-          <Button
-            color="secondary"
-            variant="contained"
-            onClick={() => setShowSettings(false)}
-          >
-            Close
-          </Button>
-        </Grid>
       </Grid>
     );
   };
@@ -197,7 +187,7 @@ const Room = ({ leaveRoomCallback }) => {
     return renderSettings();
   } else {
     return (
-      <Box spacing={1}>
+      <Box spacing={1} sx={{bgcolor: '#E9D8E4', pb: 4}}>
         <NavBar
           settingsCallback={renderSettings}
           settingsButtonCallback={renderSettingsButton}
@@ -205,7 +195,7 @@ const Room = ({ leaveRoomCallback }) => {
           host={isHost}
           room_code={roomCode}
         />
-        <Grid container sx={{bgcolor: '#F4EDEB'}}>
+        <Grid container>
           <Grid item xs={6}>
             <Box 
               display="flex"
@@ -214,15 +204,16 @@ const Room = ({ leaveRoomCallback }) => {
               alignItems="center"
               p={1}
             >
-              <MusicPlayer {...song} />
+              <AnimatePresence>
+              <MusicPlayer {...song} isHost={isHost} />
+              </AnimatePresence>
             </Box>
             <Box
               display="flex"
               flexDirection="column"
               justifyContent="flex-start"
               alignItems="center"
-              pr={1}
-              pl={1}
+              p={1}
             >
               <MusicQueue queue={queue}/>
             </Box>
@@ -236,7 +227,9 @@ const Room = ({ leaveRoomCallback }) => {
               style={{ height: "100%" }}
               p={1}
             >
+              <AnimatePresence>
               <MusicSearch {...song} votes_to_suggest={votesToSuggestSong} suggestedSongs={suggestedSongs} />
+              </AnimatePresence>
             </Box>
           </Grid>
         </Grid>

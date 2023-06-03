@@ -18,23 +18,22 @@ import {
   Paper,
   InputBase,
 } from "@mui/material";
-import { Search } from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, ExpandLess } from "@mui/icons-material";
 
 const MusicSearch = (props) => {
   const [searchQuery, setSearchQuery] = useState(null);
   const [searchResults, setSearchResult] = useState({});
   const [resultReceived, setResultRecieved] = useState(false);
-  const [renderSuggested, setRenderSuggested] = useState(false)
-  const [suggestedSongs, setSuggestedSongs] = useState([])
+  const [renderSuggested, setRenderSuggested] = useState(false);
 
   useEffect(() => {
     if (props.suggestedSongs.length >= 1) {
-      setRenderSuggested(true)
+      setRenderSuggested(true);
     } else {
-      setRenderSuggested(false)
+      setRenderSuggested(false);
     }
-    console.log(props.suggestedSongs)
-  }, [props.suggestedSongs])
+  }, [props.suggestedSongs]);
 
   const handleSearchSong = () => {
     const requestOptions = {
@@ -58,12 +57,12 @@ const MusicSearch = (props) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        query_id: query.id,
+        query_id: query.spotify_id,
         query_duration: query.duration,
         query_name: query.name,
-        query_artist: query.artists,
+        query_artist: query.artist,
         query_album: query.album,
-        query_img: query.img
+        query_img: query.img,
       }),
     };
     console.log(query.id);
@@ -84,13 +83,21 @@ const MusicSearch = (props) => {
 
   const renderSearchResult = () => {
     const searchList = Object.values(searchResults).map((query) => (
-      <React.Fragment key={query.id}>
-        <ListItem disablePadding secondaryAction={millisToMinutesAndSeconds(query.duration)}>
+      <React.Fragment key={query.spotify_id}>
+        <ListItem
+          disablePadding
+          secondaryAction={millisToMinutesAndSeconds(query.duration)}
+          component={motion.div}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, duration: 1 }}
+          whileHover={{ scale: 1.02, duration: 0.1 }}
+          whileTap={{ scale: 0.98 }}
+        >
           <ListItemButton onClick={() => addQueue(query)}>
             <ListItemIcon sx={{ pr: "10px" }}>
               <img src={query.img} height="100%" width="100%" />
             </ListItemIcon>
-            <ListItemText primary={query.name} secondary={query.artists} />
+            <ListItemText primary={query.name} secondary={query.artist} />
             <ListItemText primary={query.album} />
           </ListItemButton>
         </ListItem>
@@ -98,32 +105,66 @@ const MusicSearch = (props) => {
       </React.Fragment>
     ));
 
-    return <List>{searchList}</List>;
+    return (
+      <Box>
+        <List
+          component={motion.div}
+          initial={{ height: 0 }}
+          animate={{ height: "auto" }}
+          transition={{ duration: 0.4 }}
+          exit={{ height: 0 }}
+        >
+          {searchList}
+        </List>
+        <Box sx={{ display: "flex", justifyContent: "center", p: 0, m: 0 }}>
+          <IconButton
+            sx={{ p: 0 }}
+            size="large"
+            onClick={() => {
+              setResultRecieved(false);
+            }}
+          >
+            <ExpandLess />
+          </IconButton>
+        </Box>
+      </Box>
+    );
   };
 
   const renderSelectedSongs = () => {
     const selectedSongList = props.suggestedSongs.map((song) => (
-      <React.Fragment key={song[5]}>
-        <ListItem disablePadding secondaryAction={millisToMinutesAndSeconds(song[3])}>
-          <ListItemIcon sx={{ pr: "10px" }}>
-            <img src={song[4]} height="100%" width="100%" />
-          </ListItemIcon>
-          <ListItemText primary={song[0]} secondary={song[2]} />
-          <ListItemText primary={song[1]} />
-          <ListItemText>{song[6]} / {props.votesToSuggestSong}</ListItemText>
+      <React.Fragment key={song.spotify_id}>
+        <ListItem
+          disablePadding
+          secondaryAction={millisToMinutesAndSeconds(song.duration)}
+          component={motion.div}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <ListItemButton onClick={() => addQueue(song)}>
+            <ListItemIcon sx={{ pr: "10px" }}>
+              <img src={song.img} height="100%" width="100%" />
+            </ListItemIcon>
+            <ListItemText primary={song.name} secondary={song.artist} />
+            <ListItemText>
+              {song.votes} / {props.votes_to_suggest}
+            </ListItemText>
+          </ListItemButton>
         </ListItem>
         <Divider />
       </React.Fragment>
     ));
-    return <List>{selectedSongList}</List>
+    return <List>{selectedSongList}</List>;
   };
 
   return (
     <Grid item style={{ width: "100%" }}>
-      <Card>
-      {renderSuggested ? renderSelectedSongs() : null}
+      <Card
+        sx={{ boxShadow: 12, borderRadius: "16px", bgcolor: "#c7cdc8", mb: 1 }}
+      >
+        {renderSuggested ? renderSelectedSongs() : null}
       </Card>
-      <Card sx={{ boxShadow: 12, borderRadius: '16px'}}>
+      <Card sx={{ boxShadow: 12, borderRadius: "16px", bgcolor: "#c7cdc8" }}>
         <Box display="flex" flexDirection="row" justifyContent="center" m={3}>
           <Paper
             component="form"
@@ -132,6 +173,8 @@ const MusicSearch = (props) => {
               display: "flex",
               alignItems: "center",
               width: 400,
+              bgcolor: "#E9D8E4",
+              boxShadow: 12,
             }}
           >
             <InputBase
@@ -149,7 +192,9 @@ const MusicSearch = (props) => {
             </IconButton>
           </Paper>
         </Box>
-        {resultReceived ? renderSearchResult() : null}
+        <AnimatePresence>
+          {resultReceived ? renderSearchResult() : null}
+        </AnimatePresence>
       </Card>
     </Grid>
   );
