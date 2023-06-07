@@ -8,3 +8,6 @@ __pycache__/
 
 # django stuff
 db.sqlite3
+
+# vs code
+/.vscode
