@@ -12,5 +12,6 @@ Then, install the required dependencies by running `npm i` in the **/frontend** 
 
 This project is designed to run in Docker, since it uses Celery which isn't compatible with windows anymore. You can run `docker compose docker-compose.yml up` to run this project in Docker.
 
-## Inspiration and Credit
+## Inspiration
 
+This project is inspired by a tutorial series provided here: https://github.com/techwithtim/Music-Controller-Web-App-Tutorial. In addition to adding custom features, I utilised funtional components (the linked project uses class based components) and integrated Celery with Redis.
