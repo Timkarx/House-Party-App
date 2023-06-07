@@ -6,7 +6,9 @@ This app was made to allow a group of friends, or a party gathering to collectiv
 
 ## Installation
 
-First, install the required dependencies by running `npm i` in the **/frontend** directory. 
+To run this app, you need to create a Spotify app at https://developer.spotify.com/, and replace the CLIENT_ID and CLIENT_SECRET in the **/spotify/credential.py** file with your own credentials.
+
+Then, install the required dependencies by running `npm i` in the **/frontend** directory. 
 
 This project is designed to run in Docker, since it uses Celery which isn't compatible with windows anymore. You can run `docker compose docker-compose.yml up` to run this project in Docker.
 
