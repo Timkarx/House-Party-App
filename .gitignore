@@ -1,3 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# dependencies
+/frontend/node_modules
+
+# django stuff
+db.sqlite3
+
+# vs code
 /.vscode
-/package-lock.json
-/package.json
