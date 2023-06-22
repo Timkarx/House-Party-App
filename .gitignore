@@ -4,7 +4,8 @@ __pycache__/
 *$py.class
 
 # dependencies
-/frontend/node_modules
+project53/frontend/node_modules
+frontend/node_modules
 
 # django stuff
 db.sqlite3
